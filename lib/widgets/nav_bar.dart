@@ -20,7 +20,9 @@ const _linkedinSvg = '''
 
 // ── NavBar ─────────────────────────────────────────────────────────────────────
 class NavBar extends StatefulWidget {
-  const NavBar({super.key});
+  final void Function(String section)? onSectionTap;
+  final ValueNotifier<String>? activeSection;
+  const NavBar({super.key, this.onSectionTap, this.activeSection});
 
   @override
   State<NavBar> createState() => _NavBarState();
@@ -31,7 +33,7 @@ class _NavBarState extends State<NavBar> with TickerProviderStateMixin {
   late final Animation<double> _fadeAnim;
   late final AnimationController _shimmerCtrl;
 
-  final List<String> _items = ['About', 'Skills', 'Experience'];
+  final List<String> _items = ['About', 'Experience', 'Skills', 'Projects'];
   int? _hoveredNavIndex;
 
   Future<void> _open(String url) async {
@@ -74,7 +76,7 @@ class _NavBarState extends State<NavBar> with TickerProviderStateMixin {
         child: _LiquidGlassShell(
           shimmerCtrl: _shimmerCtrl,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 32),
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 24),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -104,78 +106,132 @@ class _NavBarState extends State<NavBar> with TickerProviderStateMixin {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: List.generate(_items.length, (i) {
-                      final hovered = _hoveredNavIndex == i;
-                      return MouseRegion(
-                        onEnter: (_) => setState(() => _hoveredNavIndex = i),
-                        onExit: (_) => setState(() => _hoveredNavIndex = null),
-                        child: GestureDetector(
-                          onTap: () {},
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            margin: EdgeInsets.only(
-                              left: i == 0 ? 0 : 4,
-                              right: i == _items.length - 1 ? 0 : 4,
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 6, horizontal: 14),
-                            decoration: BoxDecoration(
-                              color: hovered
-                                  ? Colors.white.withOpacity(0.1)
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              _items[i],
-                              style: GoogleFonts.orbitron(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 2,
-                                color: hovered
-                                    ? Colors.white
-                                    : Colors.white.withOpacity(0.55),
+                      final activeNotifier = widget.activeSection ?? ValueNotifier<String>('About');
+                      return ValueListenableBuilder<String>(
+                        valueListenable: activeNotifier,
+                        builder: (context, activeSection, child) {
+                          final isActive = activeSection == _items[i];
+                          final hovered = _hoveredNavIndex == i;
+                          return MouseRegion(
+                            onEnter: (_) => setState(() => _hoveredNavIndex = i),
+                            onExit: (_) => setState(() => _hoveredNavIndex = null),
+                            child: GestureDetector(
+                              onTap: () => widget.onSectionTap?.call(_items[i]),
+                              child: AnimatedScale(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOutBack,
+                                scale: isActive ? 1.12 : (hovered ? 1.05 : 1.0),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeOut,
+                                  margin: EdgeInsets.only(
+                                    left: i == 0 ? 0 : 4,
+                                    right: i == _items.length - 1 ? 0 : 4,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 6, horizontal: 14),
+                                  decoration: BoxDecoration(
+                                    color: hovered
+                                        ? Colors.white.withOpacity(0.08)
+                                        : (isActive
+                                            ? const Color(0xFFB57BFF).withOpacity(0.12)
+                                            : Colors.transparent),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: isActive
+                                          ? const Color(0xFFB57BFF).withOpacity(0.3)
+                                          : Colors.transparent,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  transform: Matrix4.translationValues(
+                                    0,
+                                    isActive ? -3.0 : (hovered ? -1.5 : 0.0),
+                                    0.0,
+                                  ),
+                                  child: Text(
+                                    _items[i],
+                                    style: GoogleFonts.orbitron(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 2,
+                                      color: isActive
+                                          ? const Color(0xFFB57BFF)
+                                          : (hovered ? Colors.white : Colors.white.withOpacity(0.55)),
+                                      shadows: isActive
+                                          ? [
+                                              Shadow(
+                                                color: const Color(0xFFB57BFF).withOpacity(0.5),
+                                                blurRadius: 8,
+                                              ),
+                                            ]
+                                          : null,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       );
                     }),
                   ),
 
                 // ── RIGHT: Email chip + social icons ───────────────────────
                 Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Email: hidden on compact / mobile
-                      if (!isCompact) ...[
-                        _GlassEmailChip(
+                  child: OverflowBox(
+                    alignment: Alignment.centerRight,
+                    maxWidth: double.infinity,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Email: hidden on compact / mobile
+                        if (!isCompact) ...[
+                          _GlassEmailChip(
+                            onTap: () =>
+                                _open('mailto:swastikmeher75@gmail.com'),
+                          ),
+                          const SizedBox(width: 10),
+                          Container(
+                            width: 1,
+                            height: 18,
+                            color: Colors.white.withOpacity(0.15),
+                          ),
+                          const SizedBox(width: 10),
+                        ],
+                        // Resume button: hidden on mobile
+                        if (!isMobile) ...[
+                          _ResumeBtn(
+                            onTap: () => _open(
+                              'https://drive.google.com/file/d/1ZA_Mkw7OehjB23ITHiNtfXQQMHVBcMWY/view?usp=drive_link',
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Container(
+                            width: 1,
+                            height: 18,
+                            color: Colors.white.withOpacity(0.15),
+                          ),
+                          const SizedBox(width: 10),
+                        ],
+                        _GlassIconBtn(
+                          svgData: _githubSvg,
+                          label: 'GitHub',
                           onTap: () =>
-                              _open('mailto:swastikmeher75@gmail.com'),
+                              _open('https://github.com/Swastikmeher93'),
                         ),
-                        const SizedBox(width: 12),
-                        Container(
-                          width: 1,
-                          height: 18,
-                          color: Colors.white.withOpacity(0.15),
+                        const SizedBox(width: 6),
+                        _GlassIconBtn(
+                          svgData: _linkedinSvg,
+                          label: 'LinkedIn',
+                          onTap: () => _open(
+                            'https://www.linkedin.com/in/swastik-swarup-meher-107135176/',
+                          ),
                         ),
-                        const SizedBox(width: 12),
                       ],
-                      _GlassIconBtn(
-                        svgData: _githubSvg,
-                        label: 'GitHub',
-                        onTap: () =>
-                            _open('https://github.com/Swastikmeher93'),
-                      ),
-                      const SizedBox(width: 8),
-                      _GlassIconBtn(
-                        svgData: _linkedinSvg,
-                        label: 'LinkedIn',
-                        onTap: () => _open(
-                          'https://www.linkedin.com/in/swastik-swarup-meher-107135176/',
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],
@@ -409,6 +465,83 @@ class _GlassIconBtnState extends State<_GlassIconBtn> {
               ),
               child: SvgPicture.string(widget.svgData, width: 17, height: 17),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Resume button ──────────────────────────────────────────────────────────────
+class _ResumeBtn extends StatefulWidget {
+  final VoidCallback onTap;
+  const _ResumeBtn({required this.onTap});
+
+  @override
+  State<_ResumeBtn> createState() => _ResumeBtnState();
+}
+
+class _ResumeBtnState extends State<_ResumeBtn> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit:  (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            gradient: _hovered
+                ? const LinearGradient(
+                    colors: [Color(0xFFB57BFF), Color(0xFF7C3AED)],
+                  )
+                : null,
+            color: _hovered ? null : Colors.transparent,
+            border: Border.all(
+              color: _hovered
+                  ? const Color(0xFFB57BFF)
+                  : const Color(0xFFB57BFF).withOpacity(0.45),
+              width: 1,
+            ),
+            boxShadow: _hovered
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFFB57BFF).withOpacity(0.35),
+                      blurRadius: 16,
+                      spreadRadius: 1,
+                    )
+                  ]
+                : [],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.description_outlined,
+                size: 13,
+                color: _hovered
+                    ? Colors.white
+                    : const Color(0xFFB57BFF).withOpacity(0.9),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'Resume',
+                style: GoogleFonts.orbitron(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.5,
+                  color: _hovered
+                      ? Colors.white
+                      : const Color(0xFFB57BFF).withOpacity(0.9),
+                ),
+              ),
+            ],
           ),
         ),
       ),
