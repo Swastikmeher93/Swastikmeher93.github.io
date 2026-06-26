@@ -2,15 +2,29 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:google_fonts/google_fonts.dart';
 
+import '../widgets/about_section.dart';
 import '../widgets/experience_section.dart';
 import '../widgets/github_heatmap.dart';
 import '../widgets/grid_animation_background.dart';
 import '../widgets/nav_bar.dart';
+import '../widgets/projects_section.dart';
 import '../widgets/skills_section.dart';
 import '../widgets/world_clock_widget.dart';
 
 // Shared scroll progress notifier (0.0 → 1.0)
 final _scrollProgress = ValueNotifier<double>(0.0);
+
+// Shared active section notifier
+final activeSection = ValueNotifier<String>('About');
+
+// Global scroll controller — registered by _ForegroundContent on init
+ScrollController? _globalScrollCtrl;
+
+// Section keys — used by NavBar to scroll-to on tap
+final _aboutKey      = GlobalKey();
+final _skillsKey     = GlobalKey();
+final _projectsKey   = GlobalKey();
+final _experienceKey = GlobalKey();
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -58,15 +72,42 @@ class HomeView extends StatelessWidget {
           ),
 
           // Layer 4: Fixed navbar (always on top)
-          const Positioned(
+          Positioned(
             top: 0,
             left: 0,
             right: 0,
             height: 64,
-            child: NavBar(),
+            child: NavBar(
+              onSectionTap: _handleNavTap,
+              activeSection: activeSection,
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  void _handleNavTap(String section) {
+    switch (section) {
+      case 'About':
+        _scrollToKey(_aboutKey);
+      case 'Skills':
+        _scrollToKey(_skillsKey);
+      case 'Projects':
+        _scrollToKey(_projectsKey);
+      case 'Experience':
+        _scrollToKey(_experienceKey);
+    }
+  }
+
+  void _scrollToKey(GlobalKey key) {
+    final ctx = key.currentContext;
+    if (ctx == null) return;
+    Scrollable.ensureVisible(
+      ctx,
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeInOut,
+      alignment: 0.05, // small top offset so section header isn't under navbar
     );
   }
 }
@@ -84,12 +125,49 @@ class _ForegroundContentState extends State<_ForegroundContent> {
   @override
   void initState() {
     super.initState();
+    _globalScrollCtrl = _scrollCtrl;
     _scrollCtrl.addListener(() {
       final max = _scrollCtrl.position.maxScrollExtent;
       if (max > 0) {
         _scrollProgress.value = _scrollCtrl.offset / max;
       }
+      final active = _determineActiveSection();
+      if (activeSection.value != active) {
+        activeSection.value = active;
+      }
     });
+  }
+
+  String _determineActiveSection() {
+    if (!_scrollCtrl.hasClients) return 'About';
+    if (_scrollCtrl.offset <= 30) {
+      return 'About';
+    }
+    if (_scrollCtrl.position.pixels >=
+        _scrollCtrl.position.maxScrollExtent - 50) {
+      return 'Projects';
+    }
+
+    final keys = {
+      'Projects': _projectsKey,
+      'Skills': _skillsKey,
+      'Experience': _experienceKey,
+      'About': _aboutKey,
+    };
+
+    for (final entry in keys.entries) {
+      final ctx = entry.value.currentContext;
+      if (ctx != null) {
+        final box = ctx.findRenderObject() as RenderBox?;
+        if (box != null) {
+          final pos = box.localToGlobal(Offset.zero);
+          if (pos.dy <= 160.0) {
+            return entry.key;
+          }
+        }
+      }
+    }
+    return 'About';
   }
 
   @override
@@ -126,15 +204,22 @@ class _ForegroundContentState extends State<_ForegroundContent> {
                 const _AnimatedName(),
                 const SizedBox(height: 14),
                 _RoleTag(),
+                const SizedBox(height: 16),
+                const _OpenToWorkBadge(),
                 const SizedBox(height: 22),
                 const _TypewriterParagraph(),
                 SizedBox(height: vGap),
-                const SkillsSection(),
+                AboutSection(key: _aboutKey),
                 SizedBox(height: vGap),
-                const ExperienceSection(),
+                ExperienceSection(key: _experienceKey),
+                SizedBox(height: vGap),
+                SkillsSection(key: _skillsKey),
+                SizedBox(height: vGap),
+                ProjectsSection(key: _projectsKey),
                 SizedBox(height: vGap),
                 const GitHubHeatmap(username: 'Swastikmeher93'),
                 SizedBox(height: vGap),
+                const _Footer(),
               ],
             ),
           ),
@@ -236,6 +321,159 @@ class _RoleTag extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+class _Footer extends StatelessWidget {
+  const _Footer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Subtle divider
+        Container(
+          width: 80,
+          height: 1,
+          color: Colors.white.withOpacity(0.08),
+        ),
+        const SizedBox(height: 24),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Made with ',
+              style: GoogleFonts.orbitron(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: Colors.white.withOpacity(0.4),
+                letterSpacing: 1.5,
+              ),
+            ),
+            const FlutterLogo(size: 14),
+            Text(
+              ' by Swastik',
+              style: GoogleFonts.orbitron(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Colors.white.withOpacity(0.55),
+                letterSpacing: 1.5,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          '© ${DateTime.now().year} Swastik Swarup Meher. All rights reserved.',
+          style: GoogleFonts.orbitron(
+            fontSize: 8.5,
+            fontWeight: FontWeight.w400,
+            color: Colors.white.withOpacity(0.25),
+            letterSpacing: 1.0,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Open to Work badge ────────────────────────────────────────────────────────
+class _OpenToWorkBadge extends StatefulWidget {
+  const _OpenToWorkBadge();
+
+  @override
+  State<_OpenToWorkBadge> createState() => _OpenToWorkBadgeState();
+}
+
+class _OpenToWorkBadgeState extends State<_OpenToWorkBadge>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulseCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _pulseCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0x1000FF66), // Subtle green tint
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0x3300FF66), // 20% opacity green border
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0x0500FF66),
+            blurRadius: 10,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedBuilder(
+            animation: _pulseCtrl,
+            builder: (context, child) {
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 6 + (10 * _pulseCtrl.value),
+                    height: 6 + (10 * _pulseCtrl.value),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00FF66).withOpacity(0.4 * (1.0 - _pulseCtrl.value)),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  Container(
+                    width: 7,
+                    height: 7,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF00FF66), // Vibrant green
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0xFF00FF66),
+                          blurRadius: 6,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'OPEN TO WORK',
+            style: GoogleFonts.orbitron(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF00FF66), // Vibrant green
+              letterSpacing: 2.0,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

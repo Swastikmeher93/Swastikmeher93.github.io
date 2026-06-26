@@ -136,227 +136,232 @@ class _ExperienceCardState extends State<_ExperienceCard> {
       final companyFs = narrow ? 13.0 : 16.0;
       final roleFs    = narrow ? 9.0  : 10.0;
       final bulletFs  = narrow ? 9.0  : 10.0;
+      final dotTop    = narrow ? 16.0 : 20.0;
 
-      return IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Timeline ────────────────────────────────────────────────────
-            SizedBox(
-              width: timelineW,
-              child: Column(
-                children: [
-                  SizedBox(height: narrow ? 16 : 20),
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _hovered ? accent : const Color(0xFF2E2E2E),
-                      border: Border.all(
-                        color: _hovered ? accent : const Color(0xFF444444),
-                        width: 2,
-                      ),
-                      boxShadow: _hovered
-                          ? [BoxShadow(color: accent.withOpacity(0.4), blurRadius: 10)]
-                          : [],
-                    ),
-                  ),
-                  if (!widget.isLast)
-                    Expanded(
-                      child: Container(
-                        width: 1,
-                        margin: const EdgeInsets.only(top: 6),
-                        color: const Color(0xFF2A2A2A),
-                      ),
-                    ),
-                ],
-              ),
+      return Stack(
+        children: [
+          // ── Connector line (behind everything, stretches to row height) ────
+          if (!widget.isLast)
+            Positioned(
+              left: timelineW / 2 - 0.5,
+              top: dotTop + 16,
+              bottom: 0,
+              child: Container(width: 1, color: const Color(0xFF2A2A2A)),
             ),
 
-            // ── Card body ───────────────────────────────────────────────────
-            Expanded(
-              child: MouseRegion(
-                onEnter: (_) => setState(() => _hovered = true),
-                onExit:  (_) => setState(() => _hovered = false),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 220),
-                  margin: EdgeInsets.only(bottom: widget.isLast ? 0 : 24),
-                  padding: EdgeInsets.all(cardPad),
-                  decoration: BoxDecoration(
-                    color: _hovered
-                        ? accent.withOpacity(0.06)
-                        : const Color(0xFF1C1C1C),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: _hovered
-                          ? accent.withOpacity(0.5)
-                          : const Color(0xFF2A2A2A),
-                      width: 1,
+          // ── Row: dot + card body ───────────────────────────────────────────
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Timeline dot
+              SizedBox(
+                width: timelineW,
+                child: Column(
+                  children: [
+                    SizedBox(height: dotTop),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _hovered ? accent : const Color(0xFF2E2E2E),
+                        border: Border.all(
+                          color: _hovered ? accent : const Color(0xFF444444),
+                          width: 2,
+                        ),
+                        boxShadow: _hovered
+                            ? [BoxShadow(color: accent.withOpacity(0.4), blurRadius: 10)]
+                            : [],
+                      ),
                     ),
-                    boxShadow: _hovered
-                        ? [BoxShadow(
-                            color: accent.withOpacity(0.12),
-                            blurRadius: 24,
-                            spreadRadius: 2,
-                          )]
-                        : [],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // ── Header (stacks on narrow) ────────────────────────
-                      if (narrow) ...[
-                        Text(
-                          widget.exp.company,
-                          style: GoogleFonts.orbitron(
-                            fontSize: companyFs,
-                            fontWeight: FontWeight.w800,
-                            color: _hovered ? accent : Colors.white,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          widget.exp.role,
-                          style: GoogleFonts.orbitron(
-                            fontSize: roleFs,
-                            fontWeight: FontWeight.w500,
-                            color: const Color(0xFF888888),
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        _PeriodPill(
-                            accent: accent,
-                            period: widget.exp.period,
-                            fontSize: 7),
-                        if (widget.exp.badge != null) ...[
-                          const SizedBox(height: 5),
+                  ],
+                ),
+              ),
+
+              // ── Card body ─────────────────────────────────────────────────
+              Expanded(
+                child: MouseRegion(
+                  onEnter: (_) => setState(() => _hovered = true),
+                  onExit:  (_) => setState(() => _hovered = false),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 220),
+                    margin: EdgeInsets.only(bottom: widget.isLast ? 0 : 24),
+                    padding: EdgeInsets.all(cardPad),
+                    decoration: BoxDecoration(
+                      color: _hovered
+                          ? accent.withOpacity(0.06)
+                          : const Color(0xFF1C1C1C),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: _hovered
+                            ? accent.withOpacity(0.5)
+                            : const Color(0xFF2A2A2A),
+                        width: 1,
+                      ),
+                      boxShadow: _hovered
+                          ? [BoxShadow(
+                              color: accent.withOpacity(0.12),
+                              blurRadius: 24,
+                              spreadRadius: 2,
+                            )]
+                          : [],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // ── Header (stacks on narrow) ────────────────────────
+                        if (narrow) ...[
                           Text(
-                            widget.exp.badge!,
+                            widget.exp.company,
                             style: GoogleFonts.orbitron(
-                              fontSize: 7,
-                              color: const Color(0xFF666666),
+                              fontSize: companyFs,
+                              fontWeight: FontWeight.w800,
+                              color: _hovered ? accent : Colors.white,
+                              letterSpacing: 1,
                             ),
                           ),
+                          const SizedBox(height: 4),
+                          Text(
+                            widget.exp.role,
+                            style: GoogleFonts.orbitron(
+                              fontSize: roleFs,
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFF888888),
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          _PeriodPill(
+                              accent: accent,
+                              period: widget.exp.period,
+                              fontSize: 7),
+                          if (widget.exp.badge != null) ...[
+                            const SizedBox(height: 5),
+                            Text(
+                              widget.exp.badge!,
+                              style: GoogleFonts.orbitron(
+                                fontSize: 7,
+                                color: const Color(0xFF666666),
+                              ),
+                            ),
+                          ],
+                        ] else ...[
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.exp.company,
+                                      style: GoogleFonts.orbitron(
+                                        fontSize: companyFs,
+                                        fontWeight: FontWeight.w800,
+                                        color: _hovered ? accent : Colors.white,
+                                        letterSpacing: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      widget.exp.role,
+                                      style: GoogleFonts.orbitron(
+                                        fontSize: roleFs,
+                                        fontWeight: FontWeight.w500,
+                                        color: const Color(0xFF888888),
+                                        letterSpacing: 1.2,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  _PeriodPill(
+                                      accent: accent,
+                                      period: widget.exp.period,
+                                      fontSize: 8),
+                                  if (widget.exp.badge != null) ...[
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      widget.exp.badge!,
+                                      style: GoogleFonts.orbitron(
+                                        fontSize: 8,
+                                        color: const Color(0xFF666666),
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ],
-                      ] else ...[
-                        Row(
+
+                        const SizedBox(height: 16),
+
+                        // ── Divider ────────────────────────────────────────────
+                        Container(
+                          height: 1,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(colors: [
+                              accent.withOpacity(_hovered ? 0.3 : 0.1),
+                              Colors.transparent,
+                            ]),
+                          ),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // ── Bullet points ──────────────────────────────────────
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Column(
+                          children: widget.exp.bullets.map((b) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 9),
+                              child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    widget.exp.company,
-                                    style: GoogleFonts.orbitron(
-                                      fontSize: companyFs,
-                                      fontWeight: FontWeight.w800,
-                                      color: _hovered ? accent : Colors.white,
-                                      letterSpacing: 1.5,
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                      top: narrow ? 4 : 5,
+                                      right: narrow ? 7 : 10,
+                                    ),
+                                    child: Container(
+                                      width: 4,
+                                      height: 4,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: accent.withOpacity(0.7),
+                                      ),
                                     ),
                                   ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    widget.exp.role,
-                                    style: GoogleFonts.orbitron(
-                                      fontSize: roleFs,
-                                      fontWeight: FontWeight.w500,
-                                      color: const Color(0xFF888888),
-                                      letterSpacing: 1.2,
+                                  Expanded(
+                                    child: Text(
+                                      b,
+                                      style: GoogleFonts.orbitron(
+                                        fontSize: bulletFs,
+                                        height: 1.7,
+                                        color: const Color(0xFF999999),
+                                        letterSpacing: 0.3,
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                _PeriodPill(
-                                    accent: accent,
-                                    period: widget.exp.period,
-                                    fontSize: 8),
-                                if (widget.exp.badge != null) ...[
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    widget.exp.badge!,
-                                    style: GoogleFonts.orbitron(
-                                      fontSize: 8,
-                                      color: const Color(0xFF666666),
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ],
+                            );
+                          }).toList(),
                         ),
                       ],
-
-                      const SizedBox(height: 16),
-
-                      // ── Divider ────────────────────────────────────────────
-                      Container(
-                        height: 1,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: [
-                            accent.withOpacity(_hovered ? 0.3 : 0.1),
-                            Colors.transparent,
-                          ]),
-                        ),
-                      ),
-
-                      const SizedBox(height: 14),
-
-                      // ── Bullet points ──────────────────────────────────────
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: widget.exp.bullets.map((b) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 9),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                    top: narrow ? 4 : 5,
-                                    right: narrow ? 7 : 10,
-                                  ),
-                                  child: Container(
-                                    width: 4,
-                                    height: 4,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: accent.withOpacity(0.7),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    b,
-                                    style: GoogleFonts.orbitron(
-                                      fontSize: bulletFs,
-                                      height: 1.7,
-                                      color: const Color(0xFF999999),
-                                      letterSpacing: 0.3,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       );
     });
   }
