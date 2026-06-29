@@ -99,6 +99,7 @@ class Experience {
   final String? badge;
   final Color accentColor;
   final List<String> bullets;
+  final String? companyUrl;
 
   const Experience({
     required this.company,
@@ -107,6 +108,7 @@ class Experience {
     this.badge,
     required this.accentColor,
     required this.bullets,
+    this.companyUrl,
   });
 }
 
@@ -140,6 +142,7 @@ const experiences = [
     period: 'Apr 2024 – Present',
     badge: '👾 Made with friends',
     accentColor: Color(0xFFB57BFF),
+    companyUrl: 'https://boxobit.com/',
     bullets: [
       'Built and shipped production-level mobile apps using Flutter & Dart.',
       'Developed cross-platform and native Android applications at scale.',

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../model/portfolio_data.dart';
 
 class ExperienceSection extends StatefulWidget {
@@ -124,6 +125,13 @@ class _ExperienceCard extends StatefulWidget {
 class _ExperienceCardState extends State<_ExperienceCard> {
   bool _hovered = false;
 
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final accent = widget.exp.accentColor;
@@ -212,13 +220,40 @@ class _ExperienceCardState extends State<_ExperienceCard> {
                       children: [
                         // ── Header (stacks on narrow) ────────────────────────
                         if (narrow) ...[
-                          Text(
-                            widget.exp.company,
-                            style: GoogleFonts.orbitron(
-                              fontSize: companyFs,
-                              fontWeight: FontWeight.w800,
-                              color: _hovered ? accent : Colors.white,
-                              letterSpacing: 1,
+                          GestureDetector(
+                            onTap: widget.exp.companyUrl != null
+                                ? () => _launchUrl(widget.exp.companyUrl!)
+                                : null,
+                            child: MouseRegion(
+                              cursor: widget.exp.companyUrl != null
+                                  ? SystemMouseCursors.click
+                                  : SystemMouseCursors.basic,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    widget.exp.company,
+                                    style: GoogleFonts.orbitron(
+                                      fontSize: companyFs,
+                                      fontWeight: FontWeight.w800,
+                                      color: _hovered ? accent : Colors.white,
+                                      letterSpacing: 1,
+                                      decoration: widget.exp.companyUrl != null && _hovered
+                                          ? TextDecoration.underline
+                                          : null,
+                                      decorationColor: accent,
+                                    ),
+                                  ),
+                                  if (widget.exp.companyUrl != null) ...[
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      Icons.open_in_new,
+                                      size: companyFs - 2,
+                                      color: _hovered ? accent : Colors.white.withOpacity(0.5),
+                                    ),
+                                  ],
+                                ],
+                              ),
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -254,13 +289,40 @@ class _ExperienceCardState extends State<_ExperienceCard> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      widget.exp.company,
-                                      style: GoogleFonts.orbitron(
-                                        fontSize: companyFs,
-                                        fontWeight: FontWeight.w800,
-                                        color: _hovered ? accent : Colors.white,
-                                        letterSpacing: 1.5,
+                                    GestureDetector(
+                                      onTap: widget.exp.companyUrl != null
+                                          ? () => _launchUrl(widget.exp.companyUrl!)
+                                          : null,
+                                      child: MouseRegion(
+                                        cursor: widget.exp.companyUrl != null
+                                            ? SystemMouseCursors.click
+                                            : SystemMouseCursors.basic,
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              widget.exp.company,
+                                              style: GoogleFonts.orbitron(
+                                                fontSize: companyFs,
+                                                fontWeight: FontWeight.w800,
+                                                color: _hovered ? accent : Colors.white,
+                                                letterSpacing: 1.5,
+                                                decoration: widget.exp.companyUrl != null && _hovered
+                                                    ? TextDecoration.underline
+                                                    : null,
+                                                decorationColor: accent,
+                                              ),
+                                            ),
+                                            if (widget.exp.companyUrl != null) ...[
+                                              const SizedBox(width: 6),
+                                              Icon(
+                                                Icons.open_in_new,
+                                                size: companyFs - 2,
+                                                color: _hovered ? accent : Colors.white.withOpacity(0.5),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(height: 5),
