@@ -1,4 +1,4 @@
-name: Deploy Flutter Web
+name: Gh-Pages
 
 on:
   push:
@@ -9,21 +9,40 @@ permissions:
   contents: write
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: subosito/flutter-action@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
-          channel: stable
+          persist-credentials: true
 
-      - run: flutter pub get
-
-      - run: flutter build web --release --base-href /
-
-      - uses: peaceiris/actions-gh-pages@v3
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: build/web
+          flutter-version: '3.22.0'
+          channel: 'stable'
+
+      - name: Build and Deploy to GitHub Pages
+        run: |
+          flutter config --enable-web
+          flutter pub get
+          flutter build web --release --wasm --base-href /
+          
+          # Git configuration
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          
+          # Safe asset restructure
+          if [ -d build/web/assets/assets ]; then
+            mv build/web/assets/assets/* build/web/assets/ 2>/dev/null || true
+            rmdir build/web/assets/assets 2>/dev/null || true
+          fi
+          
+          # Deploying using Git
+          git --work-tree build/web add --all
+          git --work-tree build/web commit -m "Automatic deployment by GitHub Actions"
+          git push origin HEAD:gh-pages --force
+        working-directory: ${{ github.workspace }}
+        shell: bash
