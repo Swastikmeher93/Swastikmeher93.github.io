@@ -21,7 +21,7 @@ jobs:
 
       - run: flutter pub get
 
-      run: flutter build web --release --base-href /portfolio/
+      - run: flutter build web --release --base-href /portfolio/
 
       - uses: peaceiris/actions-gh-pages@v3
         with:
