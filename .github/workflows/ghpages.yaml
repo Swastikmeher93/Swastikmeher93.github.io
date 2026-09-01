@@ -25,14 +25,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Flutter Web
-        run: flutter build web --release --wasm --base-href /
-
-      - name: Fix Asset Paths
-        run: |
-          if [ -d build/web/assets/assets ]; then
-            mv build/web/assets/assets/* build/web/assets/ 2>/dev/null || true
-            rmdir build/web/assets/assets 2>/dev/null || true
-          fi
+        run: flutter build web --release --base-href /
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
