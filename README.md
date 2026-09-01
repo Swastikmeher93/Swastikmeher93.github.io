@@ -1,17 +1,47 @@
-# portfolio
+# 🚀 Swastik Swarup Meher — Portfolio
 
-A new Flutter project.
+A personal portfolio website built with **Flutter Web**, showcasing my projects, experience, and skills.
 
-## Getting Started
+🌐 **Live:** [swastikmeher93.github.io](https://swastikmeher93.github.io/)
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## ✨ Features
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+- Responsive design for desktop & mobile
+- Animated UI with Flutter Web
+- Experience timeline with project details
+- Skills section & GitHub heatmap
+- World clock widget
+- Dark mode aesthetic
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## 🛠️ Tech Stack
+
+- **Flutter & Dart** — UI framework
+- **Riverpod** — State management
+- **Google Fonts** — Typography
+- **GitHub Actions** — CI/CD deploy to GitHub Pages
+
+---
+
+## 🏃 Run Locally
+
+```bash
+flutter pub get
+flutter run -d chrome
+```
+
+## 📦 Build
+
+```bash
+flutter build web --release
+```
+
+---
+
+## 📬 Contact
+
+- **Email:** swastikmeher75@gmail.com
+- **GitHub:** [@Swastikmeher93](https://github.com/Swastikmeher93)
