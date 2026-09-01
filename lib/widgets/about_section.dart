@@ -239,7 +239,7 @@ class _StatsRow extends StatelessWidget {
   const _StatsRow({required this.isMobile});
 
   static const _stats = [
-    _Stat('9+', 'Months of\nExperience', Color(0xFFB57BFF)),
+    _Stat('11+', 'Months of\nExperience', Color(0xFFB57BFF)),
     _Stat('2+', 'Apps\nShipped', Color(0xFF3ECF8E)),
     _Stat('2', 'Companies\nWorked', Color(0xFF54C5F8)),
     _Stat('∞', 'Problems\nSolved', Color(0xFFF5A623)),

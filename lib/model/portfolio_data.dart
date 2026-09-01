@@ -116,13 +116,15 @@ const experiences = [
   Experience(
     company: 'AiBuzz Technoventures Pvt. Ltd.',
     role: 'Flutter Developer Intern',
-    period: 'Nov 2025 – Jun 2026',
+    period: 'Nov 2025 – Present',
     accentColor: Color(0xFF3ECF8E),
     bullets: [
-      'Developed a full-featured healthcare application using Flutter & Dart.',
-      'Implemented multi-role user authentication (patients, doctors, admins) backed by a FastAPI + PostgreSQL stack.',
-      'Integrated interactive maps for clinic/hospital discovery and location-based search.',
-      'Built a complete appointment booking system with scheduling, slot management, and notifications.',
+      '📱 Project 1 — Health Tech Application',
+      'Built a full-featured healthcare app in Flutter & Dart with multi-role auth (patients, doctors, admins) backed by FastAPI + PostgreSQL.',
+      'Integrated interactive maps for clinic/hospital discovery, location-based search, and a complete appointment booking system with scheduling, slot management, and push notifications.',
+      '🛠️ Project 2 — SaaS Field Service Management Application',
+      'Developed a multi-role SaaS platform supporting Customers, Field Engineers, and Vendors with role-specific dashboards and workflows.',
+      'Implemented service request lifecycle management — from customer ticket creation, engineer assignment & on-site tracking, to vendor inventory coordination and resolution reporting.',
     ],
   ),
   Experience(

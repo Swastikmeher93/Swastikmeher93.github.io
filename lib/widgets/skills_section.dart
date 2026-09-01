@@ -52,6 +52,8 @@ const _categories = [
       _SkillTag('Firebase',   Color(0xFFFFCA28)),
       _SkillTag('Supabase',   Color(0xFF3ECF8E)),
       _SkillTag('Redis',      Color(0xFFDC382D)),
+      _SkillTag('Docker',     Color(0xFF2496ED)),
+      _SkillTag('Kubernetes', Color(0xFF326CE5)),
       _SkillTag('Git / GitHub', Color(0xFFF05032)),
       _SkillTag('CI / CD',    Color(0xFF2088FF)),
     ],
